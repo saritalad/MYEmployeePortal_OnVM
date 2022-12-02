@@ -1,0 +1,48 @@
+﻿version: "3.9"
+services:
+   webapp:
+    # image: <imagename>
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8050:80"
+    depends_on:
+      - sqlserver
+    networks:
+      - frontend
+      - backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__SqlConnection=Data Source=sqlserver;Initial Catalog=demodb;User ID=sa;Password=vV5r9tn0M4@
+   sqlserver:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: mysqlserver
+    
+    healthcheck:
+
+            test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "vV5r9tn0M4@" -Q "SELECT 1" || exit 1
+
+            interval: 10s
+
+            timeout: 3s
+
+            retries: 10
+
+            start_period: 10s
+            #wait for initaial delay of 10s
+    networks:
+      - backend
+    environment:
+     - ACCEPT_EULA=Y
+     - SA_PASSWORD=vV5r9tn0M4@
+    ports:
+     - "1440:1433"
+    # volumes:
+    #  - c:\test:/var/opt/mssql/data
+networks:  
+  frontend: 
+    driver: bridge 
+  backend:
+    driver: bridge
+    #bridge is network driver  host  run direcly on host machine 2 none :disabled networking(flag) to tell no netwrk required  3 bridge 
